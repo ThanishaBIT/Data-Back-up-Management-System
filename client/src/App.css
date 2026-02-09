@@ -1,0 +1,309 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --primary: #1e293b;
+  --accent: #2563eb;
+  --danger: #ef4444;
+  --success: #10b981;
+  --bg-light: #f9fafb;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-light);
+  color: var(--primary);
+}
+
+/* ===== LOGIN PAGE STYLES ===== */
+.login-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top right, #1e293b, #0f172a);
+}
+
+.login-card {
+  background: #ffffff;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 420px;
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-header { text-align: center; margin-bottom: 32px; }
+.login-header h1 { font-size: 2rem; color: #1e293b; }
+.login-header h1 span { color: var(--accent); }
+.login-header p { color: #64748b; font-size: 0.9rem; margin-top: 5px; }
+
+.login-form { display: flex; flex-direction: column; gap: 20px; }
+.input-group { display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.input-group label { font-size: 0.85rem; font-weight: 600; color: #475569; }
+.input-group input {
+  padding: 12px 16px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.login-button {
+  background-color: var(--accent);
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+/* Fixes the spacing between 'Remember me' and 'Forgot Password' */
+.form-options {
+  display: flex;
+  justify-content: space-between; /* This creates the space */
+  align-items: center;
+  font-size: 0.85rem;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between checkbox and text */
+  color: #64748b;
+  cursor: pointer;
+}
+
+.forgot-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+/* ===== CLEAN DASHBOARD STYLES ===== */
+.clean-dashboard {
+  min-height: 100vh;
+  background-color: #f3f4f6;
+}
+
+.nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 8%;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.nav-logo { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+.nav-logo span { color: var(--accent); }
+
+.content-area { padding: 40px 8%; }
+
+/* Upload Box */
+.upload-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 80px;
+  background: #fff;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--accent);
+  transition: 0.2s;
+}
+
+.upload-box:hover { background: #f8fafc; border-color: var(--accent); }
+
+/* File Grid */
+.modern-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.modern-card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  transition: 0.2s;
+}
+
+.modern-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+
+.file-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Fixes the box overflow */
+  margin-bottom: 4px;
+}
+
+.file-size { font-size: 0.8rem; color: #64748b; }
+
+.file-actions {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+}
+
+.file-actions a, .btn-restore {
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.text-red { color: var(--danger) !important; background: none; border: none; cursor: pointer; font-weight: 600; }
+
+.section-label { font-size: 1.1rem; font-weight: 700; margin-top: 40px; }
+.trash-area { opacity: 0.8; }
+
+.btn-logout {
+  background: var(--primary);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Spinner */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+/* ... Keep Login and Nav styles from before ... */
+
+.upload-container {
+  margin-bottom: 40px;
+}
+
+.upload-dropzone {
+  display: block;
+  background: #ffffff;
+  border: 2px dashed #e2e8f0;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hover Effect */
+.upload-dropzone:hover {
+  border-color: var(--accent);
+  background: #f0f7ff;
+}
+
+/* Dragging State */
+.upload-dropzone.dragging {
+  border-color: var(--accent);
+  background: #eff6ff;
+  transform: scale(1.02);
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.1);
+}
+
+/* Icon Design */
+.upload-icon-circle {
+  width: 60px;
+  height: 60px;
+  background: #f1f5f9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+  transition: 0.3s;
+}
+
+.upload-icon-circle .icon {
+  font-size: 24px;
+  color: #64748b;
+  font-weight: 800;
+}
+
+.upload-dropzone:hover .upload-icon-circle {
+  background: var(--accent);
+}
+
+.upload-dropzone:hover .icon {
+  color: white;
+}
+
+.upload-text h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 5px;
+}
+
+.upload-text p {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* Uploading State */
+.upload-dropzone.uploading {
+  border-style: solid;
+  cursor: wait;
+}
+
+.upload-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.upload-status p {
+  font-weight: 600;
+  color: var(--accent);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* ... Keep Card and Grid styles from before ... */
+
