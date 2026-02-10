@@ -17,6 +17,7 @@ export const uploadFile = async (req, res) => {
       fileName: req.file.filename,
       filePath: req.file.path,
       fileSize: req.file.size,
+      userId: req.user.id ,
     });
 
     await newFile.save();
@@ -31,7 +32,11 @@ export const uploadFile = async (req, res) => {
 
 // ✅ Get All Active Files
 export const getFiles = async (req, res) => {
-  const files = await Backup.find({ isDeleted: false });
+  const files = await Backup.find({
+    isDeleted: false,
+    userId: req.user.id
+  });
+
   res.json(files);
 };
 
@@ -72,13 +77,14 @@ export const updateFile = async (req, res) => {
 };
 // ✅ Get Trash Files
 export const getTrashFiles = async (req, res) => {
-  try {
-    const trash = await Backup.find({ isDeleted: true });
-    res.json(trash);
-  } catch (error) {
-    res.status(500).json({ message: "Failed to fetch trash" });
-  }
+  const trash = await Backup.find({
+    isDeleted: true,
+    userId: req.user.id
+  });
+
+  res.json(trash);
 };
+
 
 
 

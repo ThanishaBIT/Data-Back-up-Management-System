@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/db.js";
 import backupRoutes from "./routes/backupRoutes.js"; // ⭐ added routes
+import authRoutes from "./routes/authRoutes.js";
 
 // load the environment variable
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
 app.use("/api/files", backupRoutes);
+app.use("/api/auth", authRoutes);
 
 // test the route
 app.get("/", (req, res) => {
