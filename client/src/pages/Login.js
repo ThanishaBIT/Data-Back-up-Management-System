@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
 import "../App.css";
 
 function Login() {
@@ -6,21 +8,28 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
-    // Simple frontend login check
-    if (email === "thanisha@gmail.com" && password === "@@120000") {
+    try {
 
-      // store login status
-      localStorage.setItem("user", "true");
+      // ⭐ CALL BACKEND LOGIN API
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        { email, password }
+      );
 
-      // IMPORTANT: reload app so protected route updates
+      // ⭐ SAVE TOKEN
+      localStorage.setItem("token", res.data.token);
+
+      // redirect dashboard
       window.location.href = "/dashboard";
 
-    } else {
-      alert("Invalid login details");
-    }
+    } catch (err) {
+  console.log(err.response?.data);
+  alert(err.response?.data?.message || "Login failed");
+}
+
   };
 
   return (
@@ -38,7 +47,7 @@ function Login() {
             <label>Email Address</label>
             <input
               type="email"
-              placeholder="admin@test.com"
+              placeholder="Enter email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -49,35 +58,23 @@ function Login() {
             <label>Password</label>
             <input
               type="password"
-              placeholder="••••••••"
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
-          <div className="form-options">
-            <label className="checkbox-container">
-              <input type="checkbox" /> Remember me
-            </label>
-
-            <a href="#forgot" className="forgot-link">
-              Forgot Password?
-            </a>
-          </div>
-
           <button type="submit" className="login-button">
             Sign In
           </button>
-          <p style={{ marginTop: "15px", textAlign: "center" }}>
-          Don’t have an account? 
-          <a href="/register"> Register</a>
-         </p>
 
+          <p style={{ marginTop: "15px", textAlign: "center" }}>
+            Don’t have an account? 
+            <Link to="/register"> Register</Link>
+          </p>
 
         </form>
-
-    
 
       </div>
     </div>

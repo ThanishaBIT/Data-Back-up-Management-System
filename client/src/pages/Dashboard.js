@@ -7,22 +7,34 @@ function Dashboard() {
   const [trash, setTrash] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const token = localStorage.getItem("token");
 
-  const fetchFiles = async () => {
+const config = {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+};
+
+const fetchFiles = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/files");
+      const res = await axios.get("http://localhost:5000/api/files",config);
       setFiles(res.data);
     } catch (err) { console.error(err); }
   };
 
   const fetchTrash = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/files/trash");
+      const res = await axios.get("http://localhost:5000/api/files/trash",config);
       setTrash(res.data);
     } catch (err) { console.error(err); }
   };
-
+// eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    
+  if (!token) {
+    window.location.href = "/";
+    return;
+  }
     fetchFiles();
     fetchTrash();
   }, []);
@@ -34,7 +46,9 @@ function Dashboard() {
     formData.append("file", file);
     try {
       await axios.post("http://localhost:5000/api/files/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data" },
       });
       fetchFiles();
     } catch (err) { alert("Upload failed"); } 
@@ -58,14 +72,14 @@ function Dashboard() {
 
   const deleteFile = async (id) => {
     try {
-      await axios.patch(`http://localhost:5000/api/files/delete/${id}`);
+      await axios.patch(`http://localhost:5000/api/files/delete/${id}`,{},config);
       fetchFiles(); fetchTrash();
     } catch (err) { console.error(err); }
   };
 
   const restoreFile = async (id) => {
     try {
-      await axios.patch(`http://localhost:5000/api/files/restore/${id}`);
+      await axios.patch(`http://localhost:5000/api/files/restore/${id}`,{},config);
       fetchFiles(); fetchTrash();
     } catch (err) { console.error(err); }
   };
@@ -74,7 +88,7 @@ function Dashboard() {
     <div className="clean-dashboard">
       <nav className="nav-bar">
         <div className="nav-logo">Data<span>Vault</span></div>
-        <button className="btn-logout" onClick={() => { localStorage.removeItem("user"); window.location.href = "/"; }}>Logout</button>
+        <button className="btn-logout" onClick={() => { localStorage.removeItem("token"); window.location.href = "/"; }}>Logout</button>
       </nav>
 
       <main className="content-area">
