@@ -2,10 +2,9 @@ import jwt from "jsonwebtoken";
 
 const protect = (req, res, next) => {
   try {
-
     const authHeader = req.headers.authorization;
 
-    if (!authHeader) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({ message: "No token" });
     }
 
@@ -13,12 +12,12 @@ const protect = (req, res, next) => {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = decoded; // ⭐ contains user id
+    req.user = decoded;  // contains id + role
 
     next();
 
   } catch (error) {
-    res.status(401).json({ message: "Token failed" });
+    res.status(401).json({ message: "Token invalid" });
   }
 };
 

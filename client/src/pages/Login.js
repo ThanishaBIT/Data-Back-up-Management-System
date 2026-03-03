@@ -20,10 +20,14 @@ function Login() {
       );
 
       // ⭐ SAVE TOKEN
-      localStorage.setItem("token", res.data.token);
+   localStorage.setItem("token", res.data.token);
 
-      // redirect dashboard
-      window.location.href = "/dashboard";
+if (res.data.role === "admin") {
+  window.location.href = "/admin";
+} else {
+  window.location.href = "/dashboard";
+}
+
 
     } catch (err) {
   console.log(err.response?.data);

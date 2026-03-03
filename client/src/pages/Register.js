@@ -11,17 +11,18 @@ function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    try{
+    try {
       await axios.post(
         "http://localhost:5000/api/auth/register",
-        { name,email,password }
+        { name, email, password }
       );
 
       alert("Registration successful");
       window.location.href = "/";
 
-    }catch(err){
-      alert("Register failed");
+    } catch(err) {
+      console.log("REGISTER ERROR:", err.response?.data);
+      alert(err.response?.data?.message || "Register failed");
     }
   };
 

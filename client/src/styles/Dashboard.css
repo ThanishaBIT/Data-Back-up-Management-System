@@ -1,0 +1,177 @@
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background: #0b1220;
+  color: #e5e7eb;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 250px;
+  background: #111827;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.logo span {
+  color: #3b82f6;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  padding: 10px 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nav-item.active,
+.nav-item:hover {
+  color: #ffffff;
+}
+
+.logout-btn {
+  background: #ef4444;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+/* MAIN */
+.main-content {
+  flex: 1;
+  padding: 40px;
+}
+
+/* TOPBAR */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.topbar input {
+  width: 300px;
+  padding: 10px 15px;
+  background: #1f2937;
+  border: none;
+  border-radius: 8px;
+  color: white;
+}
+
+.profile-btn {
+  background: #1f2937;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+/* PROFILE */
+.profile-panel {
+  background: #111827;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+
+.change-pass-btn {
+  margin-top: 10px;
+  background: #3b82f6;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: white;
+}
+
+/* UPLOAD */
+.upload-box {
+  border: 2px dashed #374151;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  margin-bottom: 40px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.upload-box:hover {
+  border-color: #3b82f6;
+  background: #111827;
+}
+
+.upload-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #3b82f6;
+}
+
+/* FILE GRID */
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
+}
+
+.file-card {
+  background: #111827;
+  padding: 20px;
+  border-radius: 16px;
+  transition: 0.3s;
+}
+
+.file-card:hover {
+  transform: translateY(-5px);
+  background: #1f2937;
+}
+
+.file-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.file-info h4 {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+  word-break: break-word;
+}
+
+.file-info p {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.file-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.file-actions a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.file-actions button {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+}

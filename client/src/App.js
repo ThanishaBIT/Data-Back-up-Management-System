@@ -2,24 +2,29 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
-
+import AdminDashboard from "./pages/AdminDashboard";
+import ChangePassword from "./pages/ChangePassword";
 function App() {
 
-  const isLoggedIn = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* Login Page */}
         <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-        {/* Protected Dashboard */}
         <Route
           path="/dashboard"
-          element={isLoggedIn ? <Dashboard /> : <Navigate to="/" />}
+          element={token ? <Dashboard /> : <Navigate to="/" />}
         />
-     <Route path="/register" element={<Register />} />
+
+        <Route
+          path="/admin"
+          element={token ? <AdminDashboard /> : <Navigate to="/" />}
+        />
+          <Route path="/change-password" element={<ChangePassword />} />
       </Routes>
     </BrowserRouter>
   );
