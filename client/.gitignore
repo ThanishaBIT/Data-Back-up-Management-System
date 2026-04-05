@@ -4,9 +4,11 @@
 /node_modules/
 client/node_modules/
 server/node_modules/
+ uploads/
 /.pnp
 .pnp.js
 .env
+
 # testing
 /coverage
 
