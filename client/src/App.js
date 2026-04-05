@@ -1,33 +1,45 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+
+import AdminLayout from "./pages/AdminLayout";
 import AdminDashboard from "./pages/AdminDashboard";
-import ChangePassword from "./pages/ChangePassword";
+import AdminUsers from "./pages/AdminUsers";
+import AdminFiles from "./pages/AdminFiles";
+
 function App() {
 
-  const token = localStorage.getItem("token");
+  return(
 
-  return (
-    <BrowserRouter>
+    <Router>
+
       <Routes>
 
-        <Route path="/" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<Login/>}/>
+        <Route path="/register" element={<Register/>}/>
+        <Route path="/dashboard" element={<Dashboard/>}/>
 
-        <Route
-          path="/dashboard"
-          element={token ? <Dashboard /> : <Navigate to="/" />}
-        />
+        {/* ADMIN ROUTES */}
 
-        <Route
-          path="/admin"
-          element={token ? <AdminDashboard /> : <Navigate to="/" />}
-        />
-          <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/admin" element={<AdminLayout/>}>
+
+          {/* ⭐ Default admin page */}
+          <Route index element={<Navigate to="dashboard" />} />
+
+          <Route path="dashboard" element={<AdminDashboard/>}/>
+          <Route path="users" element={<AdminUsers/>}/>
+          <Route path="files" element={<AdminFiles/>}/>
+
+        </Route>
+
       </Routes>
-    </BrowserRouter>
+
+    </Router>
+
   );
+
 }
 
 export default App;

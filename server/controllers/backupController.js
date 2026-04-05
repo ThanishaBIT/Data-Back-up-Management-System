@@ -2,25 +2,34 @@ import Backup from "../models/Backup.js";
 import fs from "fs";
 import path from "path";
 
-// ✅ Upload File
+// ================= UPLOAD CERTIFICATE =================
 export const uploadFile = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ message: "No file received from frontend" });
+      return res.status(400).json({ message: "No file received" });
     }
+
+    console.log("BODY DATA:", req.body);
 
     const newFile = new Backup({
       fileName: req.file.filename,
       filePath: req.file.path,
       fileSize: req.file.size,
       userId: req.user.id,
+
+      // ⭐ NEW FIELDS
+      issuer: req.body.issuer,
+      category: req.body.category,
+      year: req.body.year,
+      status: "pending",
+
       isDeleted: false,
       deletedAt: null
     });
 
     await newFile.save();
 
-    res.json({ message: "File uploaded", data: newFile });
+    res.json({ message: "Certificate uploaded", data: newFile });
 
   } catch (error) {
     console.log(error);
@@ -28,8 +37,7 @@ export const uploadFile = async (req, res) => {
   }
 };
 
-
-// ✅ Get All Active Files
+// ================= GET ACTIVE CERTIFICATES =================
 export const getFiles = async (req, res) => {
   try {
     const files = await Backup.find({
@@ -38,13 +46,13 @@ export const getFiles = async (req, res) => {
     });
 
     res.json(files);
+
   } catch (error) {
     res.status(500).json({ message: "Fetch failed" });
   }
 };
 
-
-// ✅ Soft Delete (Move to Trash)
+// ================= DELETE (SOFT DELETE) =================
 export const deleteFile = async (req, res) => {
   try {
     const file = await Backup.findById(req.params.id);
@@ -54,19 +62,18 @@ export const deleteFile = async (req, res) => {
     }
 
     file.isDeleted = true;
-    file.deletedAt = new Date();  // ⭐ Important for 5-day cleanup
+    file.deletedAt = new Date();
 
     await file.save();
 
-    res.json({ message: "File moved to trash" });
+    res.json({ message: "Moved to trash" });
 
   } catch (error) {
     res.status(500).json({ message: "Delete failed" });
   }
 };
 
-
-// ✅ Restore File
+// ================= RESTORE =================
 export const restoreFile = async (req, res) => {
   try {
     const file = await Backup.findById(req.params.id);
@@ -76,19 +83,18 @@ export const restoreFile = async (req, res) => {
     }
 
     file.isDeleted = false;
-    file.deletedAt = null;  // ⭐ Reset delete timer
+    file.deletedAt = null;
 
     await file.save();
 
-    res.json({ message: "File restored" });
+    res.json({ message: "Restored successfully" });
 
   } catch (error) {
     res.status(500).json({ message: "Restore failed" });
   }
 };
 
-
-// ✅ Update File (Replace old file)
+// ================= UPDATE FILE =================
 export const updateFile = async (req, res) => {
   try {
     const file = await Backup.findById(req.params.id);
@@ -97,27 +103,26 @@ export const updateFile = async (req, res) => {
       return res.status(404).json({ message: "File not found" });
     }
 
-    // delete old file physically
+    // delete old file
     if (fs.existsSync(file.filePath)) {
       fs.unlinkSync(file.filePath);
     }
 
-    // update new file details
+    // update new file
     file.fileName = req.file.filename;
     file.filePath = req.file.path;
     file.fileSize = req.file.size;
 
     await file.save();
 
-    res.json({ message: "File updated successfully" });
+    res.json({ message: "Updated successfully" });
 
   } catch (error) {
     res.status(500).json({ message: "Update failed" });
   }
 };
 
-
-// ✅ Get Trash Files
+// ================= GET TRASH =================
 export const getTrashFiles = async (req, res) => {
   try {
     const trash = await Backup.find({
@@ -131,7 +136,8 @@ export const getTrashFiles = async (req, res) => {
     res.status(500).json({ message: "Trash fetch failed" });
   }
 };
-//download the file
+
+// ================= DOWNLOAD =================
 export const downloadFile = async (req, res) => {
   try {
     const file = await Backup.findById(req.params.id);
@@ -148,10 +154,9 @@ export const downloadFile = async (req, res) => {
     const fullPath = path.resolve(file.filePath);
 
     if (!fs.existsSync(fullPath)) {
-      return res.status(404).json({ message: "Physical file missing" });
+      return res.status(404).json({ message: "File missing" });
     }
 
-    // ✅ VERY IMPORTANT — Add these two lines
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
@@ -163,5 +168,56 @@ export const downloadFile = async (req, res) => {
   } catch (error) {
     console.log("Download error:", error);
     res.status(500).json({ message: "Download failed" });
+  }
+};
+
+// ================= ADMIN VERIFY =================
+export const verifyCertificate = async (req, res) => {
+  try {
+    const file = await Backup.findById(req.params.id);
+
+    if (!file) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    const oldPath = file.filePath;
+    const fileName = oldPath.split("/").pop();
+
+    const newPath = `uploads/backup/${fileName}`;
+
+    fs.rename(oldPath, newPath, async (err) => {
+      if (err) {
+        return res.status(500).json({ message: "Move failed" });
+      }
+
+      file.filePath = newPath;
+      file.status = "verified";
+
+      await file.save();
+
+      res.json({ message: "Verified & moved to vault" });
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: "Verification failed" });
+  }
+};
+
+// ================= ADMIN REJECT =================
+export const rejectCertificate = async (req, res) => {
+  try {
+    const file = await Backup.findById(req.params.id);
+
+    if (!file) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    file.status = "rejected";
+    await file.save();
+
+    res.json({ message: "Rejected" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Reject failed" });
   }
 };

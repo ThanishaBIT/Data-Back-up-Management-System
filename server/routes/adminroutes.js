@@ -5,38 +5,66 @@ import { isAdmin } from "../middleware/adminMiddleware.js";
 import bcrypt from "bcryptjs";
 import Backup from "../models/Backup.js";
 import fs from "fs";
+import path from "path";
 
 const router = express.Router();
 
 /* ==============================
-   🔹 View All Users
+   🔹 SEARCH + VIEW USERS (FIXED)
 ================================ */
 router.get("/users", protect, isAdmin, async (req, res) => {
   try {
-    const users = await User.find().select("-password");
+    const search = req.query.search || "";
+
+    const users = await User.find({
+      $or: [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } }
+      ]
+    }).select("-password");
+
     res.json(users);
+
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch users" });
   }
 });
 
 /* ==============================
-   🔹 View All Files
+   🔹 ADD USER (FIXED)
 ================================ */
-router.get("/files", protect, isAdmin, async (req, res) => {
+router.post("/add-user", protect, isAdmin, async (req, res) => {
   try {
-    const files = await Backup.find()
-      .populate("userId", "name email")
-      .sort({ createdAt: -1 });
+    const { name, email, password } = req.body;
 
-    res.json(files);
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields required" });
+    }
+
+    const exists = await User.findOne({ email });
+
+    if (exists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    res.status(201).json({ message: "User added successfully", user });
+
   } catch (error) {
-    res.status(500).json({ message: "Error fetching files" });
+    console.log(error);
+    res.status(500).json({ message: "Add user failed" });
   }
 });
 
 /* ==============================
-   🔹 Delete User
+   🔹 DELETE USER
 ================================ */
 router.delete("/user/:id", protect, isAdmin, async (req, res) => {
   try {
@@ -49,8 +77,10 @@ router.delete("/user/:id", protect, isAdmin, async (req, res) => {
     const files = await Backup.find({ userId });
 
     for (let file of files) {
-      if (fs.existsSync(file.filePath)) {
-        fs.unlinkSync(file.filePath);
+      const filePath = path.join(process.cwd(), file.filePath);
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
       }
     }
 
@@ -65,7 +95,32 @@ router.delete("/user/:id", protect, isAdmin, async (req, res) => {
 });
 
 /* ==============================
-   🔹 Delete File
+   🔹 VIEW ALL FILES
+================================ */
+router.get("/files", protect, isAdmin, async (req, res) => {
+  try {
+    const search = req.query.search || "";
+
+    const files = await Backup.find()
+      .populate("userId", "name email");
+
+    const filtered = files.filter((file) => {
+      return (
+        file.fileName?.toLowerCase().includes(search.toLowerCase()) ||
+        file.issuer?.toLowerCase().includes(search.toLowerCase()) ||
+        file.category?.toLowerCase().includes(search.toLowerCase()) ||
+        file.userId?.name?.toLowerCase().includes(search.toLowerCase())
+      );
+    });
+
+    res.json(filtered);
+
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching files" });
+  }
+});
+/* ==============================
+   🔹 DELETE FILE
 ================================ */
 router.delete("/file/:id", protect, isAdmin, async (req, res) => {
   try {
@@ -75,8 +130,10 @@ router.delete("/file/:id", protect, isAdmin, async (req, res) => {
       return res.status(404).json({ message: "File not found" });
     }
 
-    if (fs.existsSync(file.filePath)) {
-      fs.unlinkSync(file.filePath);
+    const filePath = path.join(process.cwd(), file.filePath);
+
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
     }
 
     await Backup.findByIdAndDelete(req.params.id);
@@ -89,7 +146,7 @@ router.delete("/file/:id", protect, isAdmin, async (req, res) => {
 });
 
 /* ==============================
-   🔹 Secure Download
+   🔹 DOWNLOAD FILE (FIXED)
 ================================ */
 router.get("/download/:id", protect, isAdmin, async (req, res) => {
   try {
@@ -99,11 +156,13 @@ router.get("/download/:id", protect, isAdmin, async (req, res) => {
       return res.status(404).json({ message: "File not found" });
     }
 
-    if (!fs.existsSync(file.filePath)) {
+    const filePath = path.join(process.cwd(), file.filePath);
+
+    if (!fs.existsSync(filePath)) {
       return res.status(404).json({ message: "File missing on server" });
     }
 
-    res.download(file.filePath);
+    res.sendFile(filePath);
 
   } catch (error) {
     res.status(500).json({ message: "Download failed" });
@@ -111,54 +170,67 @@ router.get("/download/:id", protect, isAdmin, async (req, res) => {
 });
 
 /* ==============================
-   🔹 Advanced Admin Stats
+   🔹 APPROVE CERTIFICATE
 ================================ */
+router.put("/approve/:id", protect, isAdmin, async (req, res) => {
+  try {
+    const file = await Backup.findById(req.params.id);
+
+    file.status = "approved";
+    await file.save();
+
+    res.json({ message: "Approved" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Approval failed" });
+  }
+});
+
+/* ==============================
+   🔹 REJECT CERTIFICATE
+================================ */
+router.put("/reject/:id", protect, isAdmin, async (req, res) => {
+  try {
+    const file = await Backup.findById(req.params.id);
+
+    file.status = "rejected";
+    await file.save();
+
+    res.json({ message: "Rejected" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Rejection failed" });
+  }
+});
+//satats
 router.get("/stats", protect, isAdmin, async (req, res) => {
   try {
-
     const totalUsers = await User.countDocuments();
+
     const totalActiveFiles = await Backup.countDocuments({ isDeleted: false });
+
     const totalDeletedFiles = await Backup.countDocuments({ isDeleted: true });
 
-    const storage = await Backup.aggregate([
-      { $match: { isDeleted: false } },
-      { $group: { _id: null, total: { $sum: "$fileSize" } } }
-    ]);
+    const files = await Backup.find();
 
-    const totalStorageUsed = storage[0]?.total || 0;
+    let totalStorage = 0;
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const filesToday = await Backup.countDocuments({
-      uploadDate: { $gte: today }
+    files.forEach(file => {
+      totalStorage += file.fileSize || 0; // size in bytes
     });
 
-    const activeUser = await Backup.aggregate([
-      { $group: { _id: "$userId", count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: 1 }
-    ]);
-
-    let mostActiveUser = null;
-
-    if (activeUser.length > 0) {
-      const user = await User.findById(activeUser[0]._id);
-      mostActiveUser = user?.email;
-    }
+    const totalStorageUsedMB = (totalStorage / (1024 * 1024)).toFixed(2);
 
     res.json({
       totalUsers,
       totalActiveFiles,
       totalDeletedFiles,
-      totalStorageUsedMB: (totalStorageUsed / (1024 * 1024)).toFixed(2),
-      filesToday,
-      mostActiveUser
+      totalStorageUsedMB
     });
 
   } catch (error) {
-    res.status(500).json({ message: "Stats fetch failed" });
+    console.log(error);
+    res.status(500).json({ message: "Stats error" });
   }
 });
-
 export default router;

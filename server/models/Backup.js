@@ -25,7 +25,24 @@ const backupSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-  }
+  },
+  issuer: {
+  type: String,
+  default: "N/A"
+},
+category: {
+  type: String,
+  default: "General"
+},
+year: {
+  type: Number
+},
+status: {
+  type: String,
+  enum: ["pending", "approved", "rejected"],
+  default: "pending"
+}
+
 
 });
 

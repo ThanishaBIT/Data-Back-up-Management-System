@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../App.css";
+import "../styles/Dashboard.css";
 
 function Dashboard() {
   const [files, setFiles] = useState([]);
@@ -12,6 +12,12 @@ function Dashboard() {
   const [showProfile, setShowProfile] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // ⭐ STATES
+  const [file, setFile] = useState(null);
+  const [issuer, setIssuer] = useState("");
+  const [category, setCategory] = useState("");
+  const [year, setYear] = useState("");
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -30,6 +36,7 @@ function Dashboard() {
     fetchProfile();
   }, []);
 
+  // 📌 FETCH DATA
   const fetchFiles = async () => {
     const res = await axios.get("http://localhost:5000/api/files", config);
     setFiles(res.data);
@@ -51,14 +58,17 @@ function Dashboard() {
     setUserInfo(res.data);
   };
 
-  const handleUpload = async (file) => {
-    if (!file) return;
+  // 📌 UPLOAD CERTIFICATE
+  const handleUpload = async () => {
+    if (!file) return alert("Select file");
 
     setIsUploading(true);
 
     const formData = new FormData();
     formData.append("file", file);
-
+    formData.append("issuer", issuer);
+    formData.append("category", category);
+     formData.append("year", year);
     await axios.post(
       "http://localhost:5000/api/files/upload",
       formData,
@@ -70,10 +80,17 @@ function Dashboard() {
       }
     );
 
+    // ✅ RESET
+    setFile(null);
+    setIssuer("");
+    setCategory("");
+    setYear("");
+
     fetchFiles();
     setIsUploading(false);
   };
 
+  // 📌 DELETE
   const deleteFile = async (id) => {
     await axios.patch(
       `http://localhost:5000/api/files/delete/${id}`,
@@ -84,49 +101,86 @@ function Dashboard() {
     fetchTrash();
   };
 
+  // 📌 RESTORE
   const restoreFile = async (id) => {
-    await axios.patch(
-      `http://localhost:5000/api/files/restore/${id}`,
-      {},
-      config
-    );
-    fetchFiles();
-    fetchTrash();
-  };
+    try {
+      await axios.patch(
+        `http://localhost:5000/api/files/restore/${id}`,
+        {},
+        config
+      );
 
+      fetchFiles();
+      fetchTrash();
+
+    } catch (err) {
+      alert(err.response?.data?.message);
+    }
+  };
+  // permanently delete 
+  const permanentDelete = async (id) => {
+  try {
+    await axios.delete(
+  `http://localhost:5000/api/files/permanent/${id}`,
+  config
+);
+
+    fetchTrash();
+    fetchFiles();
+
+  } catch (err) {
+    alert("Permanent delete failed");
+  }
+};   
+
+  // 📌 LOGOUT
   const logout = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
 
-  const filteredFiles = files.filter((file) =>
-    file.fileName.toLowerCase().includes(search.toLowerCase())
+  // 📌 SEARCH
+  const filteredFiles = files.filter((f) => {
+  const name = f.fileName?.toLowerCase() || "";
+  const issuer = f.issuer?.toLowerCase() || "";
+  const category = f.category?.toLowerCase() || "";
+
+  const query = search.toLowerCase().trim();
+
+  return (
+    name.includes(query) ||
+    issuer.includes(query) ||
+    category.includes(query)
   );
+});
+
+  // 📄 VIEW FILE
   const handleView = async (id) => {
-  try {
-    const response = await axios.get(
-      `http://localhost:5000/api/files/download/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        responseType: "blob",
-      }
-    );
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/files/download/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: "blob",
+        }
+      );
 
-    const blob = new Blob([response.data], {
-      type: "application/pdf", // ⭐ VERY IMPORTANT
-    });
+      const blob = new Blob([response.data], {
+        type: "application/pdf",
+      });
 
-    const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(blob);
+      window.open(url);
 
-    window.open(url);
+    } catch (error) {
+      alert("Unable to open certificate");
+    }
+  };
 
-  } catch (error) {
-    console.error(error);
-    alert("Unable to open file");
-  }
-};
+  // Utility function to safely access properties
+  const safe = (value) => value || "";
 
   return (
     <div className="modern-dashboard">
@@ -151,7 +205,7 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* PROFILE MODAL */}
+      {/* PROFILE */}
       {showProfile && userInfo && (
         <div className="profile-overlay">
           <div className="profile-card">
@@ -163,121 +217,155 @@ function Dashboard() {
 
               <div>
                 <h3>{userInfo.name}</h3>
-                <p className="profile-email">{userInfo.email}</p>
+                <p>{userInfo.email}</p>
               </div>
             </div>
 
-            <div className="profile-info">
-              <div className="info-row">
-                <span>Role</span>
-                <span className="badge">{userInfo.role}</span>
+            <div className="profile-stats">
+              <div className="stat-box">
+                <h4>{files.length}</h4>
+                <p>Total Certificates</p>
               </div>
 
-              <div className="profile-stats">
-                <div className="stat-box">
-                  <h4>{files.length}</h4>
-                  <p>Total Files</p>
-                </div>
-
-                <div className="stat-box">
-                  <h4>{trash.length}</h4>
-                  <p>Deleted Files</p>
-                </div>
+              <div className="stat-box">
+                <h4>{trash.length}</h4>
+                <p>Deleted</p>
               </div>
             </div>
-
-            <button
-              className="close-profile"
-              onClick={() => setShowProfile(false)}
-            >
-              Close
-            </button>
+            <div className="profile-close">
+  <button onClick={() => setShowProfile(false)}>
+    Close
+  </button>
+</div>
+            
           </div>
         </div>
       )}
 
       {/* UPLOAD */}
-      <div
-        className="upload-zone"
-        onClick={() => document.getElementById("fileInput").click()}
-      >
-        <input
-          type="file"
-          hidden
-          id="fileInput"
-          onChange={(e) => handleUpload(e.target.files[0])}
-        />
+      <div className="upload-card">
 
-        <div className="upload-icon">☁⬆</div>
-        <p>
-          {isUploading
-            ? "Uploading..."
-            : "Drag & Drop or Click to Upload"}
-        </p>
-      </div>
+  <div className="upload-header">
+    <div className="upload-icon">⬆️</div>
+    <h3>Upload Certificate</h3>
+    <p>Select your certificate and enter details</p>
+  </div>
 
+  <div className="upload-fields">
+
+    <input
+      type="file"
+      onChange={(e) => setFile(e.target.files[0])}
+    />
+
+    <input
+      type="text"
+      placeholder="Issuer (e.g., NPTEL)"
+      value={issuer}
+      onChange={(e) => setIssuer(e.target.value)}
+    />
+
+    <input
+      type="text"
+      placeholder="Category (e.g., AI)"
+      value={category}
+      onChange={(e) => setCategory(e.target.value)}
+    />
+
+    <input
+      type="number"
+      placeholder="Year (e.g., 2025)"
+      value={year}
+      onChange={(e) => setYear(e.target.value)}
+    />
+
+    <button className="upload-btn" onClick={handleUpload}>
+      🚀 Upload Certificate
+    </button>
+
+  </div>
+</div>
       {/* SEARCH */}
       <div className="search-bar">
         <input
           type="text"
-          placeholder="Search files..."
+          placeholder="Search certificates..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      {/* ACTIVE FILES */}
-      <h3 className="section-title">Active Files</h3>
+      {/* FILES */}
+      <h3 className="section-title">My Certificates</h3>
 
       <div className="file-grid">
-        {filteredFiles.map((file) => (
-          <div key={file._id} className="file-card">
-            <div className="file-icon">📄</div>
+        {filteredFiles.map((file) => {
+          const fileName = safe(file.fileName) || "No Name";
+          const issuer = safe(file.issuer) || "N/A";
+          const category = safe(file.category) || "General";
+          const year = safe(file.year) || "-";
+          const status = safe(file.status) || "pending";
 
-            <div className="file-details">
-              <h4>{file.fileName}</h4>
-              <p>{Math.round(file.fileSize / 1024)} KB</p>
+          return (
+            <div key={file._id} className="file-card">
+
+              <h4>{fileName}</h4>
+
+              <p>Issuer: {issuer}</p>
+              <p>Category: {category}</p>
+              <p>Year: {year}</p>
+
+              <p className="status">
+                {status === "pending" && "🟡 Pending"}
+                {status === "approved" && "🟢 Verified"}
+                {status === "rejected" && "🔴 Rejected"}
+              </p>
+
+              <div className="file-actions">
+                <button onClick={() => handleView(file._id)}>View</button>
+                <button onClick={() => deleteFile(file._id)}>Trash</button>
+              </div>
+
             </div>
-         <div className="file-actions">
-  <button 
-    className="view-btn"
-    onClick={() => handleView(file._id)}
-  >
-    View
-  </button>
-
-  <button 
-    className="trash-btn"
-    onClick={() => deleteFile(file._id)}
-  >
-    Trash
-  </button>
-</div>
-         
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* TRASH */}
-      <h3 className="section-title">Recently Deleted</h3>
+     <h3 className="section-title">Recently Deleted</h3>
 
-      {trash.length === 0 ? (
-        <div className="empty-state">
-          🗑 No deleted files yet. Your vault is clean!
-        </div>
-      ) : (
-        <div className="file-grid">
-          {trash.map((file) => (
-            <div key={file._id} className="file-card">
-              <h4>{file.fileName}</h4>
+{trash.length === 0 ? (
+  <p>No deleted certificates</p>
+) : (
+  <table className="file-table">
+    <thead>
+      <tr>
+        <th>S.NO</th>
+        <th>File Name</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
 
-              <button className="restore-btn"onClick={() => restoreFile(file._id)}>
-                Restore
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+    <tbody>
+      {trash.map((file, index) => (
+        <tr key={file._id}>
+          <td>{index + 1}</td>
+          <td>{file.fileName}</td>
+
+          <td>
+            <button onClick={() => restoreFile(file._id)}>
+              Restore
+            </button>
+
+            <button onClick={() => permanentDelete(file._id)}>
+              Delete
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+)}
     </div>
   );
 }
