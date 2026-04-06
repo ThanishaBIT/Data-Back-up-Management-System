@@ -17,7 +17,7 @@ function Login() {
     try {
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "http://https://backup-backend-7ojm.onrender.com/api/auth/login",
         { email, password }
       );
 
@@ -37,7 +37,7 @@ function Login() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:5000/api/auth/google";
+    window.location.href = "http://https://backup-backend-7ojm.onrender.com/api/auth/google";
   };
 
   return (

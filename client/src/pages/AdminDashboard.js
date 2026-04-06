@@ -33,7 +33,7 @@ function AdminDashboard() {
   const fetchStats = async () => {
 
     const res = await fetch(
-      "http://localhost:5000/api/admin/stats",
+      "http://https://backup-backend-7ojm.onrender.com/api/admin/stats",
       {
         headers:{
           Authorization:`Bearer ${token}`

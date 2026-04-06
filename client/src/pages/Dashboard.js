@@ -38,13 +38,13 @@ function Dashboard() {
 
   // 📌 FETCH DATA
   const fetchFiles = async () => {
-    const res = await axios.get("http://localhost:5000/api/files", config);
+    const res = await axios.get("http://https://backup-backend-7ojm.onrender.com/api/files", config);
     setFiles(res.data);
   };
 
   const fetchTrash = async () => {
     const res = await axios.get(
-      "http://localhost:5000/api/files/trash",
+      "http://https://backup-backend-7ojm.onrender.com/api/files/trash",
       config
     );
     setTrash(res.data);
@@ -52,7 +52,7 @@ function Dashboard() {
 
   const fetchProfile = async () => {
     const res = await axios.get(
-      "http://localhost:5000/api/auth/profile",
+      "http://https://backup-backend-7ojm.onrender.com/api/auth/profile",
       config
     );
     setUserInfo(res.data);
@@ -70,7 +70,7 @@ function Dashboard() {
     formData.append("category", category);
      formData.append("year", year);
     await axios.post(
-      "http://localhost:5000/api/files/upload",
+      "http://https://backup-backend-7ojm.onrender.com/api/files/upload",
       formData,
       {
         headers: {
@@ -93,7 +93,7 @@ function Dashboard() {
   // 📌 DELETE
   const deleteFile = async (id) => {
     await axios.patch(
-      `http://localhost:5000/api/files/delete/${id}`,
+      `http://https://backup-backend-7ojm.onrender.com/api/files/delete/${id}`,
       {},
       config
     );
@@ -105,7 +105,7 @@ function Dashboard() {
   const restoreFile = async (id) => {
     try {
       await axios.patch(
-        `http://localhost:5000/api/files/restore/${id}`,
+        `http://https://backup-backend-7ojm.onrender.com/api/files/restore/${id}`,
         {},
         config
       );
@@ -121,7 +121,7 @@ function Dashboard() {
   const permanentDelete = async (id) => {
   try {
     await axios.delete(
-  `http://localhost:5000/api/files/permanent/${id}`,
+  `http://https://backup-backend-7ojm.onrender.com/api/files/permanent/${id}`,
   config
 );
 
@@ -158,7 +158,7 @@ function Dashboard() {
   const handleView = async (id) => {
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/files/download/${id}`,
+        `http://https://backup-backend-7ojm.onrender.com/api/files/download/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

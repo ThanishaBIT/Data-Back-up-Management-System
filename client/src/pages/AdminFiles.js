@@ -14,7 +14,7 @@ function AdminFiles() {
   const fetchFiles = async (query = "") => {
     try {
       const res = await fetch(
-        `http://localhost:5000/api/admin/files?search=${query}`,
+        `http://https://backup-backend-7ojm.onrender.com/api/admin/files?search=${query}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -55,7 +55,7 @@ function AdminFiles() {
     if (!window.confirm("Delete this file?")) return;
 
     await fetch(
-      `http://localhost:5000/api/admin/file/${id}`,
+      `http://https://backup-backend-7ojm.onrender.com/api/admin/file/${id}`,
       {
         method: "DELETE",
         headers: {
@@ -72,7 +72,7 @@ function AdminFiles() {
   ========================== */
   const approveFile = async (id) => {
     await fetch(
-      `http://localhost:5000/api/admin/approve/${id}`,
+      `http://https://backup-backend-7ojm.onrender.com/api/admin/approve/${id}`,
       {
         method: "PUT",
         headers: {
@@ -89,7 +89,7 @@ function AdminFiles() {
   ========================== */
   const rejectFile = async (id) => {
     await fetch(
-      `http://localhost:5000/api/admin/reject/${id}`,
+      `http://https://backup-backend-7ojm.onrender.com/api/admin/reject/${id}`,
       {
         method: "PUT",
         headers: {

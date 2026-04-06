@@ -12,7 +12,7 @@ function ChangePassword() {
 
     try {
       const res = await axios.put(
-        "http://localhost:5000/api/auth/change-password",
+        "http://https://backup-backend-7ojm.onrender.com/api/auth/change-password",
         { oldPassword, newPassword },
         {
           headers: {
