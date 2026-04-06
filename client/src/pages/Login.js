@@ -17,7 +17,7 @@ function Login() {
     try {
 
       const res = await axios.post(
-        "http://https://backup-backend-7ojm.onrender.com/api/auth/login",
+        "https://data-back-up-backened.onrender.com/api/auth/login",
         { email, password }
       );
 
@@ -37,7 +37,7 @@ function Login() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://https://backup-backend-7ojm.onrender.com/api/auth/google";
+    window.location.href = "https://data-back-up-backened.onrender.com/api/auth/google";
   };
 
   return (

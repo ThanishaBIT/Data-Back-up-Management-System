@@ -19,7 +19,7 @@ function AdminUsers() {
   const fetchUsers = async (query = "") => {
     try {
       const res = await fetch(
-        `http://https://backup-backend-7ojm.onrender.com/api/admin/users?search=${query}`,
+        `https://data-back-up-backened.onrender.com/api/admin/users?search=${query}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -60,7 +60,7 @@ function AdminUsers() {
     if (!window.confirm("Delete this user?")) return;
 
     await fetch(
-      `http://https://backup-backend-7ojm.onrender.com/api/admin/user/${id}`,
+      `https://data-back-up-backened.onrender.com/api/admin/user/${id}`,
       {
         method: "DELETE",
         headers: {
@@ -83,7 +83,7 @@ function AdminUsers() {
 
     try {
       const res = await fetch(
-        "http://https://backup-backend-7ojm.onrender.com/api/admin/add-user",
+        "https://data-back-up-backened.onrender.com/api/admin/add-user",
         {
           method: "POST",
           headers: {

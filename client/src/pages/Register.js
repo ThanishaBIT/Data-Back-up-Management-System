@@ -13,7 +13,7 @@ function Register() {
 
     try {
       await axios.post(
-        "http://https://backup-backend-7ojm.onrender.com/api/auth/register",
+        "https://data-back-up-backened.onrender.com/api/auth/register",
         { name, email, password }
       );
 
