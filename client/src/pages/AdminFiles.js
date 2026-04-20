@@ -132,6 +132,7 @@ function AdminFiles() {
               <th>Category</th>
               <th>Year</th>
               <th>Status</th>
+              <th>View</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -160,6 +161,20 @@ function AdminFiles() {
                     {file.status}
                   </span>
                 </td>
+                {/* view column */}
+               <td>
+        <button
+          className="btn-view"
+          onClick={() =>
+            window.open(
+              `https://data-back-up-backened.onrender.com/${file.filePath}`,
+              "_blank"
+            )
+          }
+        >
+          👁 View
+        </button>
+      </td>
 
                 <td>
                   <button className="btn-approve" onClick={() => approveFile(file._id)}>

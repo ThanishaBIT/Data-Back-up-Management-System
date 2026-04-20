@@ -211,3 +211,15 @@
     margin-bottom: 10px;
   }
 }
+.btn-view {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-view:hover {
+  background: #2563eb;
+}
